@@ -1,0 +1,643 @@
+---
+title: "Project"
+author: "Ming Qian Gan"
+date: "2023-06-12"
+output: html_document
+---
+
+*** 
+## Introduction
+
+It is primarily the investigation of how neuron activity is the most important factor in how mice are able to succeed in a trial that I am focusing my attention in this project. As a result, the higher the susceptibility rate is, the more neuron activity there is in the brain. In the course of my investigation, I have come to the conclusion that VPL is one of the most important brain areas that can have a significant effect on success rates. As a result, the more active the VPL is, the higher the success rate will be. The hypothesis that I have for this is that the more neuron activity there is in the VPL, the higher the success rate will be.
+
+
+***  
+## Background 
+The report contains basic discussion of the source of data on mainly session 4 and session 7 of the target population in these two session, sampling mechanism is plotting graph and accessing the means and average of these two data. I first start observe each success rate of each session and found that session 4 and 7 had the same success rate. Coressponding to it is that these two session are done on the same mice Forssman.
+
+*** 
+
+## Descriptive analysis 
+
+
+
+```{r, echo=FALSE, warning=FALSE, results='hide',include = FALSE, message=FALSE}
+setwd("/Users/mingqiangan/Downloads/sessions") 
+session=list()
+for(i in 1:18){
+  session[[i]]=readRDS(paste('session',i,'.rds',sep=''))
+}
+```
+
+
+
+```{r, echo=FALSE, warning=FALSE, results='hide',include = FALSE, message=FALSE}
+# Summarize the information across sessions:
+# Knowing what summary we want to report, we can create a tibble:
+# All values in this function serve only as place holders
+library(tidyverse) 
+library(magrittr)   
+library(knitr) 
+library(dplyr)  
+n.session=length(session)
+
+# in library tidyverse
+
+meta <- tibble(
+  mouse_name = rep('name',n.session),
+  date_exp =rep('dt',n.session),
+  n_brain_area = rep(0,n.session),
+  n_neurons = rep(0,n.session),
+  n_trials = rep(0,n.session),
+  success_rate = rep(0,n.session)
+)
+
+
+for(i in 1:n.session){
+  tmp = session[[i]];
+  meta[i,1]=tmp$mouse_name;
+  meta[i,2]=tmp$date_exp;
+  meta[i,3]=length(unique(tmp$brain_area));
+  meta[i,4]=dim(tmp$spks[[1]])[1];
+  meta[i,5]=length(tmp$feedback_type);
+  meta[i,6]=mean(tmp$feedback_type+1)/2;
+}
+```
+
+```{r, echo=FALSE, warning=FALSE,  message=FALSE, tab.align = "center"}
+kable(meta, format = "html", table.attr = "class='table table-striped'",digits=2) 
+```
+<p style="text-align: center;">**Table 1**. Data structure across sessions.</p>
+
+
+### Answer:
+The data for this project consists of eighteen sessions involving four different mice named, Cori,  Forssmann, Hench and Lederberg. The variables utilized in the project include `mouse_name` which is the name of the mouse for specific sessions, `date_exp` which is the date of the experiment, `n_brain_area` which is the unique brain area involved during the test, `n_neurons` the number of neurons activities across different brain regions while mice were engaged in a decision-making task, `n_trials` is the number of trials in each session, and `success_rate` is the ratio of successful trials to the total number of trials. Also it is noted that the selected data does not contain any missing values shown in (**Table 1**) In additional to it in (**Table 1**) it shows that Cori was being experiment session in 1-3 (3 sessions),  Forssmann was being experiment in session 4-7 (4 sessions), Hench was being experiment in session 8-11 (4 sessions) and Lederberg was being experiment in session 12-8 (7 sessions). 
+
+While looking in the data, I found out that in Forssmann data session ( session 4 and 7 ) rerecord I found that they produce the same suscces rate of 0.67. However the number of neurons activities across different brain regions while mice (Forssman) were engaged in a decision-making task in session 4 is 2 time the high than session 7 with 1769 count.Also i find the data of the variable do agline with the logic. In my understanding since in every part of the brain there is a fix number of neuros can be hold therefore, the more unique brain area involved during the test(`n_trials`) the more number of neurons activities across different brain regions while mice were engaged in a decision-making task (`n_neurons`). Also I find that these two session are fairly compitable as its number of trials are approximately the same, there for that can be ommited as a variable that will affect the result. In this case, I highly suspected that neuron activities in particular brain area are the cause of success rate to fluctuated. Meaning the number of nuerons is not the key point what matters is where the neuron activities happen that varies the success rate. 
+
+**Grading criteria:**
+**To address (i), it would be best to use a table. Remember to explain what each variable represents.**
+**For (ii), (iii), and (iv), at least one figure should be included for each. Ensure that the x-axis and y-axis are clearly labeled, and provide an appropriate caption for each figure and table.**
+**Also, make sure to number them clearly for easy reference. **
+**Make sure you answered all questions in Part one. I hope you can answer those questions in order, but it's not requuied.**
+**Lastly, it's important to explain why you included those plots and how they address the questions in Part 1. This will help readers understand the significance of the data presented and how it contributes to the overall findings of the project.**
+
+As it has been shown in **Figure 3** I found out that there is 11 type of brain area that are involved in session 4  which is the ACA, CA1, DG, LGd, LSr, MOs, SUB, TH, VISa, VISp, VPL.
+
+On the other hand As it has been shown in **Figure 6** I found out that there is 8 type of brain area that are involved which is the CA3, CP, EPd, LD, PIR, root, SSp, VPL.
+
+And after observing 2 graph I found that there's one (`n_brain_area`) that appeared in both of the sessions which is **VPL**. Also in two graph,the average of the **VPL** in session 4 as it shown in **Figure 3** is reletively highier than session 7 shown in **Figure 6** And after doing some digging I found that the average spike in VPL area in session 4 is 2.2083333 and average spike in VPL area in session 7 is 1.3867925. The Average of both can be clearly shown in **Figure 1** showing 2.208333 in session 4 and , in **Figure 4** showing 1.3867925.
+
+After obtaninbg the histogram for both session 4 and 7 I got a similar histogram outcome that shows that 
+
+
+# Session 4
+```{r, echo=FALSE, warning=FALSE, results='hide',include = FALSE, message=FALSE}
+i.s=4 # indicator for this session
+
+i.t=1 # indicator for this trial 
+
+spk.trial = session[[i.s]]$spks[[i.t]]
+area=session[[i.s]]$brain_area
+fedback= session[[i.s]]$feedback_type[[i.t]]
+
+# We need to first calculate the number of spikes for each neuron during this trial 
+spk.count=apply(spk.trial,1,sum)
+# for(i in 1:dim(spk.trial)[1]){
+#  spk.count[i]=sum(spk.trial[i,])
+# }
+# Next we take the average of spikes across neurons that live in the same area 
+# You can use tapply() or group_by() in dplyr
+# tapply():
+spk.average.tapply=tapply(spk.count, area, mean)
+# dplyr: 
+# To use dplyr you need to create a data frame
+tmp <- data.frame(
+  area = area,
+  spikes = spk.count
+)
+# Calculate the average by group using dplyr
+spk.average.dplyr =tmp %>%
+  group_by(area) %>%
+  summarize(mean= mean(spikes))
+
+# Wrapping up the function:
+
+average_spike_area<-function(i.t,this_session){
+  spk.trial = this_session$spks[[i.t]]
+  area= this_session$brain_area
+  spk.count=apply(spk.trial,1,sum)
+  spk.average.tapply=tapply(spk.count, area, mean)
+  return(spk.average.tapply)
+  }
+
+# Test the function
+average_spike_area(1,this_session = session[[i.s]])
+
+n.trial=length(session[[i.s]]$feedback_type)
+n.area=length(unique(session[[i.s]]$brain_area ))
+# Alternatively, you can extract these information in the meta that we created before.
+
+# We will create a data frame that contain the average spike counts for each area, feedback type,  the two contrasts, and the trial id
+
+trial.summary =matrix(nrow=n.trial,ncol= n.area+1+2+1)
+for(i.t in 1:n.trial){
+  trial.summary[i.t,]=c(average_spike_area(i.t,this_session = session[[i.s]]),
+                          session[[i.s]]$feedback_type[i.t],
+                        session[[i.s]]$contrast_left[i.t],
+                        session[[i.s]]$contrast_right[i.s],
+                        i.t)
+}
+
+colnames(trial.summary)=c(names(average_spike_area(i.t,this_session = session[[i.s]])), 'feedback', 'left contr.','right contr.','id' )
+
+# Turning it into a data frame
+trial.summary_session_4 <- as_tibble(trial.summary)
+
+```
+
+
+
+
+```{r, echo=FALSE}
+par(mfrow=c(1,2))
+
+
+VPL<- tmp %>% filter(area == "VPL")
+x= 1:72
+avg= mean(VPL$spikes)
+
+plot(x,y=VPL$spikes,
+     main = "Average Plot of VLP in session 4", 
+     xlab = "Number of trials (Figure 1)", 
+     ylab = "Y= spike counts of VPL" )
+abline(h = avg, col = "red", lty = 2)
+
+
+hist(VPL$spike, main = "Histogram of VLP in session 7", 
+     xlab = "number of trials (Figure 2)")
+
+```
+
+
+```{r, echo=FALSE, result = 'hide', fig.height = 4, fig.width = 5, fig.align = "center"}
+area.col=rainbow(n=n.area,alpha=0.7)
+# In base R, I usually initiate a blank plot before drawing anything on it
+plot(x=1,y=0, col='white',xlim=c(0,n.trial),ylim=c(0.5,2.2), xlab="Trials",ylab="Average spike counts", main=paste("Spikes per area in Session", i.s))
+
+for(i in 1:n.area){
+  lines(y=trial.summary_session_4[[i]],x=trial.summary_session_4$id,col=area.col[i],lty=2,lwd=1)
+  lines(smooth.spline(trial.summary_session_4$id, trial.summary_session_4[[i]]),col=area.col[i],lwd=3)
+  }
+legend("topright", 
+  legend = colnames(trial.summary_session_4)[1:n.area], 
+  col = area.col, 
+  lty = 1, 
+  cex = 0.8
+)
+```
+<p style="text-align: center;">**Figure 3**. Average spike count across trials in session 4.</p>
+
+
+```{r, echo=FALSE}
+trial.summary_session_4
+```
+
+
+
+
+# Session 7
+```{r, echo=FALSE, warning=FALSE, results='hide',include = FALSE, message=FALSE}
+i.s=7 # indicator for this session
+
+i.t=1 # indicator for this trial 
+
+spk.trial = session[[i.s]]$spks[[i.t]]
+area=session[[i.s]]$brain_area
+
+# We need to first calculate the number of spikes for each neuron during this trial 
+spk.count=apply(spk.trial,1,sum)
+
+spk.average.tapply=tapply(spk.count, area, mean)
+
+tmp <- data.frame(
+  area = area,
+  spikes = spk.count
+)
+# Calculate the average by group using dplyr
+spk.average.dplyr =tmp %>%
+  group_by(area) %>%
+  summarize(mean= mean(spikes))
+
+# Wrapping up the function:
+
+average_spike_area<-function(i.t,this_session){
+  spk.trial = this_session$spks[[i.t]]
+  area= this_session$brain_area
+  spk.count=apply(spk.trial,1,sum)
+  spk.average.tapply=tapply(spk.count, area, mean)
+  return(spk.average.tapply)
+  }
+
+# Test the function
+average_spike_area(1,this_session = session[[i.s]])
+
+n.trial=length(session[[i.s]]$feedback_type)
+n.area=length(unique(session[[i.s]]$brain_area ))
+# Alternatively, you can extract these information in the meta that we created before.
+
+# We will create a data frame that contain the average spike counts for each area, feedback type,  the two contrasts, and the trial id
+
+trial.summary =matrix(nrow=n.trial,ncol= n.area+1+2+1)
+for(i.t in 1:n.trial){
+  trial.summary[i.t,]=c(average_spike_area(i.t,this_session = session[[i.s]]),
+                          session[[i.s]]$feedback_type[i.t],
+                        session[[i.s]]$contrast_left[i.t],
+                        session[[i.s]]$contrast_right[i.s],
+                        i.t)
+}
+
+colnames(trial.summary)=c(names(average_spike_area(i.t,this_session = session[[i.s]])), 'feedback', 'left contr.','right contr.','id' )
+
+# Turning it into a data frame
+trial.summary_session_7 <- as_tibble(trial.summary)
+
+```
+
+```{r, echo=FALSE}
+
+par(mfrow=c(1,2))
+VPL<- tmp %>% filter(area == "VPL")
+VPL
+x= 1:106
+avg= mean(VPL$spikes)
+
+plot(x,y=VPL$spikes,
+     main = "Average Plot of VLP in session 7", 
+     xlab = "Number of trials (Figure 4)", ylab = "Y= spike counts of VPL" )
+abline(h = avg, col = "red", lty = 2)
+
+
+hist(VPL$spike, 
+     main = "Histogram of VLP in session 7", 
+     xlab = "number of trials (Figure 5)")
+
+```
+
+
+```{r, echo=FALSE, result = 'hide', fig.height = 4, fig.width = 5, fig.align = "center"}
+area.col=rainbow(n=n.area,alpha=0.7)
+# In base R, I usually initiate a blank plot before drawing anything on it
+plot(x=1,y=0, col='white',xlim=c(0,n.trial),ylim=c(0.5,2.2), xlab="Trials",ylab="Average spike counts", main=paste("Spikes per area in Session", i.s))
+
+for(i in 1:n.area){
+  lines(y=trial.summary_session_7[[i]],x=trial.summary_session_7$id,col=area.col[i],lty=2,lwd=1)
+  lines(smooth.spline(trial.summary_session_7$id, trial.summary_session_7[[i]]),col=area.col[i],lwd=3)
+  }
+legend("topright", 
+  legend = colnames(trial.summary_session_7)[1:n.area], 
+  col = area.col, 
+  lty = 1, 
+  cex = 0.8
+)
+```
+<p style="text-align: center;">**Figure 6**. Average spike count across trials in session 7.</p>
+
+
+## Data integration
+
+Part 2 (15 points). Data integration. Using the findings in Part 1, we will propose an approach to combine data across trials by (i) extracting the shared patters across sessions and/or (ii) addressing the differences between sessions. The goal of this part is to enable the borrowing of information across sessions to enhance the prediction performance in Part 3.
+
+```{r, echo=FALSE}
+library(tidyverse)
+session_4_VPL_sucess<- trial.summary_session_4 %>% filter(feedback==1) 
+session_4_VPL_sucess
+
+
+
+session_7_VPL_sucess<- trial.summary_session_7 %>% filter(feedback==1)
+session_7_VPL_sucess
+
+
+
+
+```
+
+```{r, echo=FALSE}
+
+# Set aside the first 10 observations for each flower type as test data
+session_4_test <- session_4_VPL_sucess[1:50,11 ]
+session_7_test <- session_7_VPL_sucess[1:50,8 ]
+
+session_4_train <- session_4_VPL_sucess[51:160,11]
+session_7_train <- session_7_VPL_sucess[51:160,8]
+
+# training data from both flower types
+training_data <- cbind(session_4_train, session_7_train)
+
+# test data from both flower types
+test_data <- cbind(session_4_test, session_7_test)
+
+test_data
+
+
+
+
+
+
+
+mean_session4<- sum(test_data[,1])/50
+mean_session7<- sum(test_data[,2])/50
+
+
+mean_session4
+mean_session7
+```
+
+```{r, echo=FALSE}
+# Feature Scaling
+# training_set[-3] = scale(training_set[-3])
+# test_set[-3] = scale(test_set[-3])
+
+# Fitting Logistic Regression to the Training set
+# classifier = glm(formula = VPL ~ .,
+#                family = binomial,
+#                 data = training_set)
+#
+# Predicting the Test set results
+#prob_pred = predict(classifier, type = 'response', newdata = test_set[-3])
+#y_pred = ifelse(prob_pred > 0.5, 1, 0)
+
+
+# Making the Confusion Matrix
+#cm = table(test_set[, 3], y_pred > 0.5)
+#print(cm)
+```
+
+As a result, I found that the mean of VPL in session 4 and 7 were approximately the same, with 1.682222 and 1.682222 respectively.1.671698 is the number. Therefore, it would appear that my findings were correct, as the average neuroactivity in these two data sets is approximately the same, resulting in the success rate to be about the same, or about the same.
+
+
+
+**For the course project, if students choose not to conduct any sophisticated methods for data integration, they can choose to focus on utilizing the behavioural information. For instance, they can start by recognizing the different rewarding mechanisms (0-0, equal but non-zero, unequal), the time since the start of the experiment, session IDs for the same mouse, etc.**
+
+## Predictive modeling
+
+Part 3 (15 points). Model training and prediction. Finally, we will build a prediction model to predict the outcome (i.e., feedback types). The performance will be evaluated on two test sets of 100 trials randomly selected from Session 1 and Session 18, respectively. The test sets will be released on the day of submission when you need to evaluate the performance of your model.
+
+Using method like logistic regression, SVM, etc for prediction. 
+
+
+## Prediction performance on the test sets
+
+```{r, echo=FALSE, warning=FALSE, results='hide',include = FALSE, message=FALSE}
+setwd("/Users/mingqiangan/Downloads/test") 
+session=list()
+for(i in 1:2){
+  session[[i]]=readRDS(paste('test',i,'.rds',sep=''))
+}
+```
+```{r, echo=FALSE, warning=FALSE, results='hide',include = FALSE, message=FALSE}
+# Summarize the information across sessions:
+# Knowing what summary we want to report, we can create a tibble:
+# All values in this function serve only as place holders
+library(tidyverse) 
+library(magrittr)   
+library(knitr) 
+library(dplyr)  
+n.session=length(session)
+
+# in library tidyverse
+
+meta <- tibble(
+  mouse_name = rep('name',n.session),
+  date_exp =rep('dt',n.session),
+  n_brain_area = rep(0,n.session),
+  n_neurons = rep(0,n.session),
+  n_trials = rep(0,n.session),
+  success_rate = rep(0,n.session)
+)
+
+
+for(i in 1:n.session){
+  tmp = session[[i]];
+  meta[i,1]=tmp$mouse_name;
+  meta[i,2]=tmp$date_exp;
+  meta[i,3]=length(unique(tmp$brain_area));
+  meta[i,4]=dim(tmp$spks[[1]])[1];
+  meta[i,5]=length(tmp$feedback_type);
+  meta[i,6]=mean(tmp$feedback_type+1)/2;
+}
+```
+
+```{r, echo=FALSE, warning=FALSE,  message=FALSE, tab.align = "center"}
+kable(meta, format = "html", table.attr = "class='table table-striped'",digits=2) 
+```
+# Session 1
+```{r, echo=FALSE, warning=FALSE, results='hide',include = FALSE, message=FALSE}
+i.s=1 # indicator for this session
+
+i.t=1 # indicator for this trial 
+
+spk.trial = session[[i.s]]$spks[[i.t]]
+area=session[[i.s]]$brain_area
+
+# We need to first calculate the number of spikes for each neuron during this trial 
+spk.count=apply(spk.trial,1,sum)
+
+spk.average.tapply=tapply(spk.count, area, mean)
+
+tmp <- data.frame(
+  area = area,
+  spikes = spk.count
+)
+# Calculate the average by group using dplyr
+spk.average.dplyr =tmp %>%
+  group_by(area) %>%
+  summarize(mean= mean(spikes))
+
+# Wrapping up the function:
+
+average_spike_area<-function(i.t,this_session){
+  spk.trial = this_session$spks[[i.t]]
+  area= this_session$brain_area
+  spk.count=apply(spk.trial,1,sum)
+  spk.average.tapply=tapply(spk.count, area, mean)
+  return(spk.average.tapply)
+  }
+
+# Test the function
+average_spike_area(1,this_session = session[[i.s]])
+
+n.trial=length(session[[i.s]]$feedback_type)
+n.area=length(unique(session[[i.s]]$brain_area ))
+# Alternatively, you can extract these information in the meta that we created before.
+
+# We will create a data frame that contain the average spike counts for each area, feedback type,  the two contrasts, and the trial id
+
+trial.summary =matrix(nrow=n.trial,ncol= n.area+1+2+1)
+for(i.t in 1:n.trial){
+  trial.summary[i.t,]=c(average_spike_area(i.t,this_session = session[[i.s]]),
+                          session[[i.s]]$feedback_type[i.t],
+                        session[[i.s]]$contrast_left[i.t],
+                        session[[i.s]]$contrast_right[i.s],
+                        i.t)
+}
+
+colnames(trial.summary)=c(names(average_spike_area(i.t,this_session = session[[i.s]])), 'feedback', 'left contr.','right contr.','id' )
+
+# Turning it into a data frame
+trial.summary_session_1 <- as_tibble(trial.summary)
+
+```
+
+```{r, echo=FALSE, result = 'hide', fig.height = 4, fig.width = 5, fig.align = "center"}
+area.col=rainbow(n=n.area,alpha=0.7)
+# In base R, I usually initiate a blank plot before drawing anything on it
+plot(x=1,y=0, col='white',xlim=c(0,n.trial),ylim=c(0.5,2.2), xlab="Trials",ylab="Average spike counts", main=paste("Spikes per area in Session", i.s))
+
+for(i in 1:n.area){
+  lines(y=trial.summary_session_7[[i]],x=trial.summary_session_7$id,col=area.col[i],lty=2,lwd=1)
+  lines(smooth.spline(trial.summary_session_7$id, trial.summary_session_7[[i]]),col=area.col[i],lwd=3)
+  }
+legend("topright", 
+  legend = colnames(trial.summary_session_7)[1:n.area], 
+  col = area.col, 
+  lty = 1, 
+  cex = 0.8
+)
+```
+
+```{r, echo=FALSE}
+library(tidyverse)
+session_1_VPL_sucess<- trial.summary_session_1 %>% filter(feedback==1) 
+session_1_VPL_sucess
+
+mean_session4<- sum(session_1_VPL_sucess[,1])/72
+
+mean_session4
+```
+
+
+
+# Session 2
+```{r, echo=FALSE, warning=FALSE, results='hide',include = FALSE, message=FALSE}
+i.s=2 # indicator for this session
+
+i.t=1 # indicator for this trial 
+
+spk.trial = session[[i.s]]$spks[[i.t]]
+area=session[[i.s]]$brain_area
+fedback= session[[i.s]]$feedback_type[[i.t]]
+
+# We need to first calculate the number of spikes for each neuron during this trial 
+spk.count=apply(spk.trial,1,sum)
+# for(i in 1:dim(spk.trial)[1]){
+#  spk.count[i]=sum(spk.trial[i,])
+# }
+# Next we take the average of spikes across neurons that live in the same area 
+# You can use tapply() or group_by() in dplyr
+# tapply():
+spk.average.tapply=tapply(spk.count, area, mean)
+# dplyr: 
+# To use dplyr you need to create a data frame
+tmp <- data.frame(
+  area = area,
+  spikes = spk.count
+)
+# Calculate the average by group using dplyr
+spk.average.dplyr =tmp %>%
+  group_by(area) %>%
+  summarize(mean= mean(spikes))
+
+# Wrapping up the function:
+
+average_spike_area<-function(i.t,this_session){
+  spk.trial = this_session$spks[[i.t]]
+  area= this_session$brain_area
+  spk.count=apply(spk.trial,1,sum)
+  spk.average.tapply=tapply(spk.count, area, mean)
+  return(spk.average.tapply)
+  }
+
+# Test the function
+average_spike_area(1,this_session = session[[i.s]])
+
+n.trial=length(session[[i.s]]$feedback_type)
+n.area=length(unique(session[[i.s]]$brain_area ))
+# Alternatively, you can extract these information in the meta that we created before.
+
+# We will create a data frame that contain the average spike counts for each area, feedback type,  the two contrasts, and the trial id
+
+trial.summary =matrix(nrow=n.trial,ncol= n.area+1+2+1)
+for(i.t in 1:n.trial){
+  trial.summary[i.t,]=c(average_spike_area(i.t,this_session = session[[i.s]]),
+                          session[[i.s]]$feedback_type[i.t],
+                        session[[i.s]]$contrast_left[i.t],
+                        session[[i.s]]$contrast_right[i.s],
+                        i.t)
+}
+
+colnames(trial.summary)=c(names(average_spike_area(i.t,this_session = session[[i.s]])), 'feedback', 'left contr.','right contr.','id' )
+
+# Turning it into a data frame
+trial.summary_session_4 <- as_tibble(trial.summary)
+
+```
+
+
+
+
+```{r, echo=FALSE, result = 'hide', fig.height = 4, fig.width = 5, fig.align = "center"}
+area.col=rainbow(n=n.area,alpha=0.7)
+# In base R, I usually initiate a blank plot before drawing anything on it
+plot(x=1,y=0, col='white',xlim=c(0,n.trial),ylim=c(0.5,2.2), xlab="Trials",ylab="Average spike counts", main=paste("Spikes per area in Session", i.s))
+
+for(i in 1:n.area){
+  lines(y=trial.summary_session_4[[i]],x=trial.summary_session_4$id,col=area.col[i],lty=2,lwd=1)
+  lines(smooth.spline(trial.summary_session_4$id, trial.summary_session_4[[i]]),col=area.col[i],lwd=3)
+  }
+legend("topright", 
+  legend = colnames(trial.summary_session_4)[1:n.area], 
+  col = area.col, 
+  lty = 1, 
+  cex = 0.8
+)
+
+
+
+
+```
+
+## Discussion 
+ 
+After comparing my  finding with the test data, I find that my finding only match with session 1 in the test data 
+
+
+
+
+
+
+*** 
+## Acknowledgement {-}
+
+
+
+## Reference {-}
+
+
+*** 
+## Session info {-}
+
+
+```{r}
+
+
+sessionInfo()
+```
+*** 
+
+## Appendix {-}
+\begin{center} Appendix: R Script \end{center}
+
+```{r, ref.label=knitr::all_labels(),echo=TRUE,eval=FALSE}
+```
